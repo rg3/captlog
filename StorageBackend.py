@@ -70,19 +70,19 @@ class StorageBackend(object):
     def del_bookmark(self, id_bm):
         raise NotImplementedError()
 
-class _SafetyNet(object):
-    def __init__(self, msg):
-        self.message = msg
-
-    def __call__(self, fn):
-        def ret(*args, **kwargs):
-            try:
-                fn(*args, **kwargs)
-            except Error:
-                raise
-            except (StandardError, ), e:
-                raise Error(self.message + ': ' + '%r' % (e, ))
-        return ret
+#class _SafetyNet(object):
+#    def __init__(self, msg):
+#        self.message = msg
+#
+#    def __call__(self, fn):
+#        def ret(*args, **kwargs):
+#            try:
+#                fn(*args, **kwargs)
+#            except Error:
+#                raise
+#            except (StandardError, ), e:
+#                raise Error(self.message + ': ' + '%r' % (e, ))
+#        return ret
 
 class DefaultStorageBackend(StorageBackend):
     DB_PATH = os.path.join(os.path.expanduser('~'), '.caplog', 'caplog.db')
