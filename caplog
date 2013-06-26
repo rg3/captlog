@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+import Tkinter
+import ttk
+
+lorem_ipsum = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae augue lectus. Curabitur pellentesque ac eros eget imperdiet. Integer tincidunt, metus non cursus tincidunt, justo metus consequat magna, ut suscipit mauris sapien vitae nisl. Aenean tristique leo nec convallis dictum. Mauris dignissim, magna quis fermentum placerat, lorem elit lobortis eros, quis dignissim justo neque et justo. In et fringilla justo, ut congue est. Donec ut volutpat leo. Mauris vitae ipsum at turpis egestas placerat sed pharetra est. Proin lacinia ipsum massa, eget fermentum nulla sollicitudin sit amet.
+
+Ut ac tellus mauris. Mauris erat nunc, fermentum ut convallis vitae, aliquet sit amet elit. Sed justo tortor, malesuada vel nisl non, sodales ultrices tortor. Donec euismod, nibh a luctus sollicitudin, ante justo consequat justo, nec tristique massa nulla condimentum massa. Ut congue porta ornare. Proin vitae enim tortor. Cras adipiscing tellus sapien, eu commodo nunc mollis in. Sed laoreet nunc dolor, vel lacinia nibh adipiscing sit amet. Donec ut dignissim tellus. Mauris lobortis tincidunt pellentesque. Nullam orci velit, volutpat vitae convallis at, interdum et felis. Aenean bibendum et nisi in consectetur. Morbi viverra faucibus eros.
+
+Ut dui nulla, laoreet dapibus elementum sed, vehicula ut leo. Donec eget ultrices justo, ut mollis nisl. Nulla consequat condimentum sapien, a elementum odio vulputate nec. In justo massa, accumsan non sapien sed, volutpat dapibus lectus. Nulla facilisi. Aenean a vulputate nibh. Nulla eget neque lacus. Proin lectus leo, rhoncus non imperdiet sit amet, lacinia et sapien. Aliquam quis accumsan nisi, a luctus tortor.
+
+Duis accumsan quis lectus at malesuada. Mauris elit nisi, fringilla ut fermentum sed, scelerisque vitae velit. Ut vitae dui lectus. Etiam diam magna, fermentum sit amet lectus at, imperdiet tempor ipsum. Nulla leo velit, venenatis in massa eget, scelerisque hendrerit purus. Nullam facilisis, mauris eu condimentum fermentum, erat erat varius velit, et accumsan tellus mauris id mi. Praesent bibendum sodales tristique.
+
+Maecenas at dictum risus. Duis fermentum feugiat eros at eleifend. Maecenas at sapien ut sem euismod tristique sed eget turpis. Sed in molestie tellus. Sed hendrerit accumsan mattis. Aenean lacus eros, fringilla eu feugiat sit amet, facilisis a turpis. Nam felis eros, elementum at leo sed, convallis ultricies nisl. In accumsan quam purus, ac auctor nisi elementum sit amet. Nunc condimentum nisi neque, ac lobortis risus pellentesque eu. Ut adipiscing, mi sed porttitor blandit, magna massa eleifend nisi, eget faucibus enim ipsum vel mauris. Pellentesque erat quam, convallis et ligula vel, lacinia egestas augue. Fusce porttitor magna non massa fermentum consequat. Integer consectetur vehicula lacus, in venenatis risus iaculis a. Cras ultricies ornare magna in egestas."""
+
+expand = (Tkinter.N, Tkinter.W, Tkinter.E, Tkinter.S)
+padexpand = { 'ipadx': 5, 'ipady': 5, 'padx': 5, 'pady': 5, 'sticky': expand }
+
+# Window
+root = Tkinter.Tk(className="caplog")
+root.title("caplog: The Captain's Log")
+
+status_bar_text = Tkinter.StringVar(value="Sample status bar text")
+
+# Main window frame.
+main_frame = ttk.Frame(root)
+# Left pane with tabs.
+notebook = ttk.Notebook(main_frame)
+entries_frame = ttk.Frame(notebook)
+bookmarks_frame = ttk.Frame(notebook)
+notebook.add(entries_frame, text="Entries")
+notebook.add(bookmarks_frame, text="Bookmarks")
+# Entries tab.
+new_entry_button = ttk.Button(entries_frame, text="New Entry")
+del_entry_button = ttk.Button(entries_frame, text="Delete Entry")
+entry_list_frame = ttk.Button(entries_frame)
+entry_listbox = Tkinter.Listbox(entry_list_frame, height=24)
+for i in xrange(1, 30+1):
+    entry_listbox.insert('end', 'Entry from 2013-06-%02d' % i)
+entry_listbox_sb = ttk.Scrollbar(entry_list_frame, command=entry_listbox.yview)
+entry_listbox.configure(yscrollcommand=entry_listbox_sb.set)
+# Bookmarks tab.
+new_bookmark_button = ttk.Button(bookmarks_frame, text="New Bookmark")
+del_bookmark_button = ttk.Button(bookmarks_frame, text="Delete Bookmark")
+bookmark_list_frame = ttk.Button(bookmarks_frame)
+bookmark_listbox = Tkinter.Listbox(bookmark_list_frame, height=24)
+for i in xrange(1, 30+1):
+    bookmark_listbox.insert('end', 'Bookmark number %s' % i)
+bookmark_listbox_sb = ttk.Scrollbar(bookmark_list_frame, command=bookmark_listbox.yview)
+bookmark_listbox.configure(yscrollcommand=bookmark_listbox_sb.set)
+# Right pane displaying an entry.
+entry_display_frame = ttk.Frame(main_frame)
+ctime_label = ttk.Label(entry_display_frame, text='Created on:  ')
+ctime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:15:00')
+mtime_label = ttk.Label(entry_display_frame, text='Modified on:  ')
+mtime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:16:01')
+save_button = ttk.Button(entry_display_frame, text='Save Entry')
+entry_text_frame = ttk.Frame(entry_display_frame)
+entry_text = Tkinter.Text(entry_text_frame, width=80, wrap='word')
+entry_text.insert("0.0", lorem_ipsum)
+entry_text_sb = ttk.Scrollbar(entry_text_frame, command=entry_text.yview)
+entry_text.configure(yscrollcommand=entry_text_sb.set)
+# Status bar
+bottom_frame = ttk.Frame(main_frame)
+status_bar = ttk.Entry(bottom_frame, textvariable=status_bar_text, state='readonly')
+quit_button = ttk.Button(bottom_frame, text="Quit", command=root.destroy)
+
+# Main window frame.
+main_frame.grid(row=0, column=0, sticky=expand, padx=5, pady=5)
+main_frame.columnconfigure(1, weight=1)
+# Left pane with tabs.
+notebook.grid(row=0, column=0, sticky=expand, pady=5)
+# Entries tab.
+entries_frame.columnconfigure(0, weight=1)
+entries_frame.columnconfigure(1, weight=1)
+new_entry_button.grid(row=0, column=0, **padexpand)
+del_entry_button.grid(row=0, column=1, **padexpand)
+entry_list_frame.grid(row=1, column=0, columnspan=2, sticky=expand)
+entry_list_frame.columnconfigure(0, weight=1)
+entry_listbox.grid(row=1, column=0, sticky=expand)
+entry_listbox_sb.grid(row=1, column=1, sticky=(Tkinter.N, Tkinter.S))
+# Bookmarks tab.
+bookmarks_frame.columnconfigure(0, weight=1)
+bookmarks_frame.columnconfigure(1, weight=1)
+new_bookmark_button.grid(row=0, column=0, **padexpand)
+del_bookmark_button.grid(row=0, column=1, **padexpand)
+bookmark_list_frame.grid(row=1, column=0, columnspan=2, sticky=expand)
+bookmark_list_frame.columnconfigure(0, weight=1)
+bookmark_listbox.grid(row=1, column=0, sticky=expand)
+bookmark_listbox_sb.grid(row=1, column=1, sticky=(Tkinter.N, Tkinter.S))
+# Right pane displaying an entry.
+entry_display_frame.grid(row=0, column=1, **padexpand)
+entry_display_frame.columnconfigure(2, weight=1)
+entry_display_frame.rowconfigure(2, weight=1)
+ctime_label.grid(row=0, column=0, sticky=Tkinter.W)
+ctime_value_label.grid(row=0, column=1, sticky=Tkinter.W)
+mtime_label.grid(row=1, column=0, sticky=Tkinter.W)
+mtime_value_label.grid(row=1, column=1, sticky=Tkinter.W)
+save_button.grid(row=0, column=2, rowspan=2, sticky=(Tkinter.E, Tkinter.N, Tkinter.S))
+entry_text_frame.grid(row=2, column=0, columnspan=3, sticky=expand)
+entry_text_frame.columnconfigure(0, weight=1)
+entry_text_frame.rowconfigure(0, weight=1)
+entry_text.grid(row=0, column=0, sticky=expand)
+entry_text_sb.grid(row=0, column=1, sticky=expand)
+# Status bar
+bottom_frame.grid(row=1, column=0, columnspan=2, sticky=expand)
+bottom_frame.rowconfigure(0, weight=1)
+bottom_frame.columnconfigure(0, weight=1)
+status_bar.grid(row=0, column=0, sticky=expand)
+quit_button.grid(row=0, column=1, sticky=expand)
+
+root.mainloop()
