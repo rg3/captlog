@@ -56,6 +56,10 @@ exit_img = Tkinter.PhotoImage(file=os.path.join(image_path, 'exit.png'))
 bold_font = tkFont.nametofont("TkDefaultFont").copy()
 bold_font.configure(weight='bold')
 
+#
+# Widget hierarchy.
+#
+
 # Main window frame.
 main_frame = ttk.Frame(root)
 # Left pane with tabs.
@@ -85,10 +89,10 @@ bookmark_listbox.configure(yscrollcommand=bookmark_listbox_sb.set)
 notebook_sep = ttk.Separator(main_frame, orient='vertical')
 # Right pane displaying an entry.
 entry_display_frame = ttk.Frame(main_frame)
-ctime_label = ttk.Label(entry_display_frame, text='Created on:  ', font=bold_font)
-ctime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:15:00')
-mtime_label = ttk.Label(entry_display_frame, text='Modified on:  ', font=bold_font)
-mtime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:16:01')
+ctime_label = ttk.Label(entry_display_frame, text='Created on:', font=bold_font)
+ctime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:15:00Z')
+mtime_label = ttk.Label(entry_display_frame, text='Modified on:', font=bold_font)
+mtime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:16:01Z')
 save_button = ttk.Button(entry_display_frame, text='Save Entry', image=save_img, compound='left')
 entry_text_sep = ttk.Separator(entry_display_frame, orient='horizontal')
 entry_text_frame = ttk.Frame(entry_display_frame)
@@ -98,6 +102,10 @@ entry_text_sb = ttk.Scrollbar(entry_text_frame, command=entry_text.yview)
 entry_text.configure(yscrollcommand=entry_text_sb.set)
 # Exit button.
 exit_button = ttk.Button(main_frame, text="Exit Program", command=root.destroy, image=exit_img, compound='left')
+
+#
+# Widget positioning.
+#
 
 # Main window frame.
 root.columnconfigure(0, weight=1)
@@ -145,7 +153,7 @@ entry_text_frame.rowconfigure(0, weight=1)
 entry_text.grid(row=0, column=0, **expand)
 entry_text_sb.grid(row=0, column=1, **expand)
 # Exit button.
-exit_button.grid(row=1, column=0, columnspan=3, pady=(default_padding, 0))
+exit_button.grid(row=1, column=0, columnspan=3, pady=(default_padding, 0), sticky=Tkinter.E)
 
 s = ttk.Style()
 #s.theme_use('alt')
