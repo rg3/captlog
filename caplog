@@ -18,6 +18,7 @@
 import Tkinter
 import ttk
 import tkFont
+import tkMessageBox
 import os.path
 
 lorem_ipsum = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae augue lectus. Curabitur pellentesque ac eros eget imperdiet. Integer tincidunt, metus non cursus tincidunt, justo metus consequat magna, ut suscipit mauris sapien vitae nisl. Aenean tristique leo nec convallis dictum. Mauris dignissim, magna quis fermentum placerat, lorem elit lobortis eros, quis dignissim justo neque et justo. In et fringilla justo, ut congue est. Donec ut volutpat leo. Mauris vitae ipsum at turpis egestas placerat sed pharetra est. Proin lacinia ipsum massa, eget fermentum nulla sollicitudin sit amet.
@@ -94,6 +95,7 @@ ctime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:15:00Z')
 mtime_label = ttk.Label(entry_display_frame, text='Modified on:', font=bold_font)
 mtime_value_label = ttk.Label(entry_display_frame, text='2013-06-26T20:16:01Z')
 save_button = ttk.Button(entry_display_frame, text='Save Entry', image=save_img, compound='left')
+save_button.configure(state='disabled')
 entry_text_sep = ttk.Separator(entry_display_frame, orient='horizontal')
 entry_text_frame = ttk.Frame(entry_display_frame)
 entry_text = Tkinter.Text(entry_text_frame, width=80, wrap='word', relief='solid')
@@ -159,4 +161,10 @@ s = ttk.Style()
 #s.theme_use('alt')
 s.theme_use('clam')
 
+#answer = tkMessageBox.askyesno(
+#    title="Sooperimportant Question",
+#    message="Is 'no' the answer to this question?")
+#print 'Answer: %r' % answer
+
 root.mainloop()
+
