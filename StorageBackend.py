@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This file is part of caplog.
+# This file is part of captlog.
 #
-# caplog - Captain's Log (secret diary and notes application)
+# captlog - Captain's Log (secret diary and notes application)
 #
 # Written in 2013 by Ricardo Garcia <public@rg3.name>
 #
@@ -30,13 +30,28 @@ from Crypto.Util import Counter
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 
-# This module.
-from LogData import LogEntry
-from LogData import Bookmark
-
 class Error(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
+
+class LogEntry(object):
+    def __init__(self, id_le, ctime, mtime, data=None):
+        self.id_le = id_le
+        self.ctime = ctime
+        self.mtime = mtime
+        self.data = data
+
+    def __cmp__(self, other):
+        return cmp(self.ctime, other.ctime)
+
+class Bookmark(object):
+    def __init__(self, id_bm, id_le, text):
+        self.id_bm = id_bm
+        self.id_le = id_le
+        self.text = text
+
+    def __cmp__(self, other):
+        return cmp(self.text, other.text)
 
 class StorageBackend(object):
     @classmethod
@@ -85,7 +100,7 @@ class StorageBackend(object):
 #        return ret
 
 class DefaultStorageBackend(StorageBackend):
-    DB_PATH = os.path.join(os.path.expanduser('~'), '.caplog', 'caplog.db')
+    DB_PATH = os.path.join(os.path.expanduser('~'), '.captlog', 'captlog.db')
     SALT_SIZE = 32
     AES_KEY_SIZE = 32
     PBKDF2_ITERATIONS = 20000

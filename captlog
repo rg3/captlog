@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This file is part of caplog.
+# This file is part of captlog.
 #
-# caplog - Captain's Log (secret diary and notes application)
+# captlog - Captain's Log (secret diary and notes application)
 #
 # Written in 2013 by Ricardo Garcia <public@rg3.name>
 #
@@ -46,8 +46,8 @@ fullpadexpand = dict({
 image_path = '.'
 
 # Window
-root = Tkinter.Tk(className="caplog")
-root.title("caplog: The Captain's Log")
+root = Tkinter.Tk(className="captlog")
+root.title("captlog: The Captain's Log")
 
 new_img = Tkinter.PhotoImage(file=os.path.join(image_path, 'new.png'))
 del_img = Tkinter.PhotoImage(file=os.path.join(image_path, 'delete.png'))
