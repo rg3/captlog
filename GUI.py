@@ -56,15 +56,13 @@ class BackendInitializer(object):
         self.confirm_entry = (ttk.Entry(self.frame, show='*')
                 if self._confirmation else None)
         self.result_label = ttk.Label(self.frame, foreground='red')
-        self.done_button = ttk.Button(self.frame,
-                                      text=self.BUTTON_NORMAL_TEXT,
-                                      command=self._init_backend)
+        self.done_button = ttk.Button(self.frame, command=self._init_backend)
         self.root.bind('<Return>', self._init_backend)
         self.root.bind('<KP_Enter>', self._init_backend)
 
         # Layout.
-        padding = { 'padx': 5, 'pady': 5 }
-        self.frame.grid(row=0, column=0, **padding)
+        pad = { 'padx': 5, 'pady': 5 }
+        self.frame.grid(row=0, column=0, **pad)
         self.frame.rowconfigure(0, weight=1)
         self.frame.rowconfigure(1, weight=1)
         self.frame.rowconfigure(2, weight=1)
@@ -73,27 +71,26 @@ class BackendInitializer(object):
         self.frame.columnconfigure(0, weight=1)
         self.frame.columnconfigure(1, weight=1)
         row = 0
-        self.help_label.grid(row=row,column=0, columnspan=2, sticky=Tkinter.W,
-                             **padding)
+        self.help_label.grid(row=row, column=0, columnspan=2,
+                             sticky=Tkinter.W, **pad)
         row += 1
-        self.passphrase_label.grid(row=row, column=0, sticky=Tkinter.E,
-                                   **padding)
-        self.passphrase_entry.grid(row=row, column=1, **padding)
+        self.passphrase_label.grid(row=row, column=0, sticky=Tkinter.E, **pad)
+        self.passphrase_entry.grid(row=row, column=1, **pad)
         row += 1
         if self._confirmation:
-            self.confirm_label.grid(row=row, column=0, sticky=Tkinter.E,
-                                    **padding)
-            self.confirm_entry.grid(row=row, column=1, **padding)
+            self.confirm_label.grid(row=row, column=0, sticky=Tkinter.E, **pad)
+            self.confirm_entry.grid(row=row, column=1, **pad)
         row += 1
-        self.result_label.grid(row=row, column=0, columnspan=2, **padding)
+        self.result_label.grid(row=row, column=0, columnspan=2, **pad)
         row += 1
-        self.done_button.grid(row=row, column=0, columnspan=2, **padding)
+        self.done_button.grid(row=row, column=0, columnspan=2, **pad)
 
-        self._gui_reset()
+        self._gui_reset('', self.BUTTON_NORMAL_TEXT, 'enabled')
 
-    def _gui_reset(self):
-        self.done_button['text'] = self.BUTTON_NORMAL_TEXT
-        self.done_button['state'] = 'enabled'
+    def _gui_reset(self, rtext, btext, bstate):
+        self.result_label['text'] = rtext
+        self.done_button['text'] = btext
+        self.done_button['state'] = bstate
         self.passphrase_entry.focus()
         self.root.update()
 
@@ -108,16 +105,13 @@ class BackendInitializer(object):
                 self.result_label['text'] = 'Passphrases do not match'
                 return
         try:
-            self.done_button['state'] = 'disabled'
-            self.done_button['text'] = self.BUTTON_WAIT_TEXT
-            self.result_label['text'] = ''
-            self.root.update()
+            self._gui_reset('', self.BUTTON_WAIT_TEXT, 'disabled')
             backend = self._backend_class(p)
             self._backend = backend
             self.root.destroy()
         except (StorageBackend.Error, ), e:
-            self.result_label['text'] = 'Error: %s' % e.message
-            self._gui_reset()
+            self._gui_reset('Error: %s' % e.message,
+                            self.BUTTON_NORMAL_TEXT, 'enabled')
 
     def get_backend(self):
         self.root.mainloop()
@@ -155,18 +149,18 @@ class DefaultGUI(object):
         self.main_frame = ttk.Frame(self.root)
 
         # Images.
-        self.new_img = Tkinter.PhotoImage(file=os.path.join(self.IMAGE_PATH,
-                                                            'new.png'))
-        self.del_img = Tkinter.PhotoImage(file=os.path.join(self.IMAGE_PATH,
-                                                            'delete.png'))
-        self.save_img = Tkinter.PhotoImage(file=os.path.join(self.IMAGE_PATH,
-                                                             'save.png'))
-        self.exit_img = Tkinter.PhotoImage(file=os.path.join(self.IMAGE_PATH,
-                                                             'exit.png'))
+        new_img_path = os.path.join(self.IMAGE_PATH, 'new.png')
+        del_img_path = os.path.join(self.IMAGE_PATH, 'delete.png')
+        save_img_path = os.path.join(self.IMAGE_PATH, 'save.png')
+        exit_img_path = os.path.join(self.IMAGE_PATH, 'exit.png')
+        self.new_img = Tkinter.PhotoImage(file=new_img_path)
+        self.del_img = Tkinter.PhotoImage(file=del_img_path)
+        self.save_img = Tkinter.PhotoImage(file=save_img_path)
+        self.exit_img = Tkinter.PhotoImage(file=exit_img_path)
 
         # Fonts.
         self.bold_font = tkFont.nametofont('TkDefaultFont').copy()
-        self.bold_font.configure(weight='bold')
+        self.bold_font['weight'] = 'bold'
 
         # Left pane with tabs.
         self.notebook = ttk.Notebook(self.main_frame)
@@ -192,7 +186,7 @@ class DefaultGUI(object):
 
         self.entry_listbox_sb = ttk.Scrollbar(self.entry_list_frame,
                                               command=self.entry_listbox.yview)
-        self.entry_listbox.configure(yscrollcommand=self.entry_listbox_sb.set)
+        self.entry_listbox['yscrollcommand'] = self.entry_listbox_sb.set
 
         # Bookmarks tab.
         self.new_bookmark_button = ttk.Button(self.bookmarks_frame,
@@ -206,29 +200,28 @@ class DefaultGUI(object):
         self.bookmark_list_frame = ttk.Button(self.bookmarks_frame)
         self.bookmark_listbox = Tkinter.Listbox(
                 self.bookmark_list_frame, height=self.DEFAULT_LISTBOX_HEIGHT)
+
         # XXX
         for i in xrange(1, 30+1):
             self.bookmark_listbox.insert('end', 'Bookmark number %s' % i)
+
         self.bookmark_listbox_sb = ttk.Scrollbar(
                 self.bookmark_list_frame, command=self.bookmark_listbox.yview)
-        self.bookmark_listbox.configure(
-                yscrollcommand=self.bookmark_listbox_sb.set)
+        self.bookmark_listbox['yscrollcommand'] = self.bookmark_listbox_sb.set
         self.notebook_sep = ttk.Separator(self.main_frame, orient='vertical')
 
         # Right pane displaying an entry.
         self.entry_display_frame = ttk.Frame(self.main_frame)
         self.ctime_label = ttk.Label(self.entry_display_frame,
                                      text='Created on:', font=self.bold_font)
-        self.ctime_value_label = ttk.Label(self.entry_display_frame,
-                                           text='2013-06-26T20:15:00Z') # XXX
+        self.ctime_value_label = ttk.Label(self.entry_display_frame)
         self.mtime_label = ttk.Label(self.entry_display_frame,
                                      text='Modified on:', font=self.bold_font)
-        self.mtime_value_label = ttk.Label(self.entry_display_frame,
-                                           text='2013-06-26T20:16:01Z') # XXX
+        self.mtime_value_label = ttk.Label(self.entry_display_frame)
         self.save_button = ttk.Button(self.entry_display_frame,
                                       text='Save Entry', image=self.save_img,
                                       compound=self.DEFAULT_COMPOUND)
-        self.save_button.configure(state='disabled')
+        self.save_button['state'] = 'disabled'
         self.entry_text_sep = ttk.Separator(self.entry_display_frame,
                                             orient='horizontal')
         self.entry_text_frame = ttk.Frame(self.entry_display_frame)
@@ -237,7 +230,7 @@ class DefaultGUI(object):
         #entry_text.insert('0.0', lorem_ipsum)
         self.entry_text_sb = ttk.Scrollbar(self.entry_text_frame,
                                            command=self.entry_text.yview)
-        self.entry_text.configure(yscrollcommand=self.entry_text_sb.set)
+        self.entry_text['yscrollcommand'] = self.entry_text_sb.set
 
         # Exit button.
         self.exit_button = ttk.Button(self.main_frame, text='Exit Program',
@@ -322,12 +315,8 @@ def main():
         gui = DefaultGUI(backend)
         gui.mainloop()
 
-if __name__ == '__main__':
-    main()
-
 #answer = tkMessageBox.askyesno(
 #    title='Sooperimportant Question',
 #    message='Is 'no' the answer to this question?')
 #print 'Answer: %r' % answer
-
 
