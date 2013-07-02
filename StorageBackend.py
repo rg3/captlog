@@ -3,7 +3,7 @@
 #
 # This file is part of captlog.
 #
-# captlog - Captain's Log (secret diary and notes application)
+# captlog - The Captain's Log (secret diary and notes application)
 #
 # Written in 2013 by Ricardo Garcia <public@rg3.name>
 #
