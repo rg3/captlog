@@ -140,7 +140,7 @@ class DefaultGUI(object):
         'ipady': DEFAULT_PADDING, },
         **PADEXPAND )
 
-    IMAGE_PATH = os.path.dirname(__file__)
+    IMAGE_PATH = os.path.join(os.path.dirname(__file__), 'pixmap')
 
     def __init__(self, backend):
         self._backend = backend
