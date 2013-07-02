@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#
 # This file is part of captlog.
 #
 # captlog - Captain's Log (secret diary and notes application)
@@ -22,7 +22,7 @@ import os.path
 import sqlite3
 from exceptions import Exception, NotImplementedError, StandardError
 
-# Pycrypto.
+# PyCrypto.
 from Crypto import Random
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Cipher import AES
@@ -58,7 +58,7 @@ class StorageBackend(object):
     def first_run(cls):
         raise NotImplementedError()
 
-    def __init__(self, passkey):
+    def __init__(self, passphrase):
         raise NotImplementedError()
 
     def list_entries(self):
@@ -139,8 +139,8 @@ class DefaultStorageBackend(StorageBackend):
             end;
             """)
 
-    def _get_key(self, passkey, salt, iterations):
-        return PBKDF2(passkey, salt, self.AES_KEY_SIZE, iterations)
+    def _get_key(self, passphrase, salt, iterations):
+        return PBKDF2(passphrase, salt, self.AES_KEY_SIZE, iterations)
 
     def _get_hmac(self):
         return HMAC.new(self._key, digestmod=SHA256)
@@ -158,7 +158,7 @@ class DefaultStorageBackend(StorageBackend):
         p = cls.DB_PATH
         return not (os.path.exists(p) and os.path.isfile(p))
 
-    def __init__(self, passkey):
+    def __init__(self, passphrase):
         # Members needed at the end of this constructor.
         # self._dbcon   Database connection.
         # self._rbg     Random bytes generator.
@@ -181,7 +181,7 @@ class DefaultStorageBackend(StorageBackend):
 
             # Prepare verification table.
             salt = self._rbg.read(self.SALT_SIZE)
-            self._key = self._get_key(passkey, salt, self.PBKDF2_ITERATIONS)
+            self._key = self._get_key(passphrase, salt, self.PBKDF2_ITERATIONS)
             cipher, nonce = self._get_cipher_nonce()
             verifier = cipher.encrypt(self.REFERENCE_TEXT)
 
@@ -202,7 +202,7 @@ class DefaultStorageBackend(StorageBackend):
                     insert into verification (prop_name, prop_value)
                         values (?, ?);""", table)
                 self._dbcon.commit()
-            except (IOError, OSError, sqlite3.error:
+            except (IOError, OSError, sqlite3.error), e:
                 raise Error('unable to create database')
 
         else:
@@ -216,7 +216,7 @@ class DefaultStorageBackend(StorageBackend):
                 cursor = self._dbcon.cursor()
                 cursor.execute('select * from verification;')
                 table = dict(cursor.fetchall())
-            except:
+            except (sqlite3.error, ), e:
                 raise Error('unable to access verification table')
 
             for k in ['kdf','salt','iterations','cipher','nonce','verifier']:
@@ -231,12 +231,12 @@ class DefaultStorageBackend(StorageBackend):
 
             # Generate key and verify it.
             salt = table['salt'].decode('base64')
-            self._key = self._get_key(passkey, salt, table['iterations'])
+            self._key = self._get_key(passphrase, salt, table['iterations'])
             nonce = table['nonce'].decode('base64')
             cipher, nonce = self._get_cipher_nonce(nonce=nonce)
             verifier = table['verifier'].decode('base64')
             if cipher.decrypt(verifier) != self.REFERENCE_TEXT:
-                raise Error('wrong password')
+                raise Error('wrong passphrase')
 
     #@_SafetyNet('unable to list entries')
     def list_entries(self):
