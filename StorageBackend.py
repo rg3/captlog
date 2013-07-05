@@ -16,7 +16,7 @@
 # <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 # Standard libraries.
-import datetime
+from datetime import datetime
 import os
 import os.path
 import sqlite3
@@ -196,7 +196,9 @@ class DefaultStorageBackend(StorageBackend):
 
             # Create database and store table.
             try:
-                self._dbcon = sqlite3.connect(db_path)
+                self._dbcon = sqlite3.connect(
+                        db_path, detect_types=(sqlite3.PARSE_DECLTYPES |
+                                               sqlite3.PARSE_COLNAMES))
                 self._create_empty_db()
                 self._dbcon.executemany("""
                     insert into verification (prop_name, prop_value)
@@ -212,7 +214,9 @@ class DefaultStorageBackend(StorageBackend):
                 raise Error('%s not readable and writable' % (db_path, ))
 
             try:
-                self._dbcon = sqlite3.connect(db_path)
+                self._dbcon = sqlite3.connect(
+                        db_path, detect_types=(sqlite3.PARSE_COLNAMES |
+                                               sqlite3.PARSE_DECLTYPES))
                 cursor = self._dbcon.cursor()
                 cursor.execute('select * from verification;')
                 table = dict(cursor.fetchall())
@@ -241,7 +245,11 @@ class DefaultStorageBackend(StorageBackend):
     #@_SafetyNet('unable to list entries')
     def list_entries(self):
         cursor = self._dbcon.cursor()
-        cursor.execute('select id_le, ctime, mtime from logentry;')
+        cursor.execute(
+            """select id_le,
+                      ctime as "ctime [timestamp]",
+                      mtime as "mtime [timestamp]"
+               from logentry;""")
         rows = cursor.fetchall()
         entries = [LogEntry(*x) for x in rows]
         return entries
@@ -249,7 +257,7 @@ class DefaultStorageBackend(StorageBackend):
     #@_SafetyNet('unable to create new entry')
     def new_entry(self):
         cursor = self._dbcon.cursor()
-        now = datetime.datetime.utcnow()
+        now = datetime.utcnow()
         cursor.execute(
                 'insert into logentry(ctime, mtime) values (?, ?);', (now, now)
                 )
@@ -284,18 +292,20 @@ class DefaultStorageBackend(StorageBackend):
             cursor.executemany(
                     'insert into logentry_crypto values(?, ?, ?);', properties
                     );
+            stored_data = stored_data.encode('base64')
         cursor.execute("""
             update logentry set ctime = ?, mtime = ?, data = ? where id_le = ?;
             """,
-            (entry.ctime, entry.mtime,
-             stored_data.encode('base64'), entry.id_le))
+            (entry.ctime, entry.mtime, stored_data, entry.id_le))
         self._dbcon.commit()
 
     #@_SafetyNet('unable to get entry')
     def get_entry(self, id_le):
         cursor = self._dbcon.cursor()
         cursor.execute(
-                'select * from logentry where id_le = ?;', (id_le, )
+                """select id_le, ctime as "ctime [timestamp]",
+                          mtime as "mtime [timestamp]", data
+                   from logentry where id_le = ?;""", (id_le, )
                 )
         row = cursor.fetchone()
         if row is None:
