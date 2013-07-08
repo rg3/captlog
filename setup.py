@@ -24,7 +24,7 @@ setup(
     url='http://www.github.com/rg3/captlog',
     packages=['CaptainsLog'],
     package_dir={'CaptainsLog': 'src/lib'},
-    package_data={'CaptainsLog': ['src/lib/pixmap/*']},
+    package_data={'CaptainsLog': ['pixmap/*']},
     scripts=['src/bin/captlog'],
     provides=['CaptainsLog (0.1)'],
     requires=['Crypto (>=2.6)'],
