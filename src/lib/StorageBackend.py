@@ -31,10 +31,20 @@ from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 
 class Error(Exception):
+    """An exception from the storage backend."""
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
 class LogEntry(object):
+    """A diary log entry, containing the following items:
+
+    id_le   The log entry identifier.
+    ctime   The log entry creation time.
+    mtime   The log entry modification time.
+    data    The log entry contents, which may be None.
+
+    Note: log entries can be sorted by creation time.
+    """
     def __init__(self, id_le, ctime, mtime, data=None):
         self.id_le = id_le
         self.ctime = ctime
@@ -45,6 +55,14 @@ class LogEntry(object):
         return cmp(self.ctime, other.ctime)
 
 class Bookmark(object):
+    """A bookmark to an entry in the log. Contains:
+
+    id_bm   The bookmark identifier.
+    id_le   The log entry identifier the bookmark refers to.
+    text    The bookmark text or name.
+
+    Note: bookmarks can be sorted by text.
+    """
     def __init__(self, id_bm, id_le, text):
         self.id_bm = id_bm
         self.id_le = id_le
@@ -54,35 +72,61 @@ class Bookmark(object):
         return cmp(self.text, other.text)
 
 class StorageBackend(object):
+    """Storage backend. Handles storing and retrieving entries and bookmarks.
+    
+    This is an abstract class from which to derive classes that implement real
+    storage backends. Most methods can raise an exception from the storage
+    backend."""
+
     @classmethod
     def first_run(cls):
+        """Before creating an instance, this method can be called to check
+        wether this would be the first time an instance of this class is
+        initialized in the system. This helps initializers ask for a passphrase
+        twice instead of one or perform other external initialization routines.
+        """
         raise NotImplementedError()
 
     def __init__(self, passphrase):
+        """Builds an instance. Requires a passphrase to initialize the
+        backend."""
         raise NotImplementedError()
 
     def list_entries(self):
+        """Returns a list of entries. The entry data members in the list may be
+        None even if actual content was previusly stored for each entry.
+        
+        For backends implemeting encryption, doing this helps delaying entry
+        decryption until it's really needed."""
         raise NotImplementedError()
 
     def new_entry(self):
+        """Creates and returns a new entry."""
         raise NotImplementedError()
 
     def save_entry(self, entry):
+        """Saves an entry."""
         raise NotImplementedError()
 
     def get_entry(self, id_le):
+        """Given the entry identifier, returns an entry. This method only
+        returns None in the entry data if no data was stored for the entry."""
         raise NotImplementedError()
 
     def del_entry(self, id_le):
+        """Deletes an entry by its entry identifier."""
         raise NotImplementedError()
 
     def list_bookmarks(self):
+        """Returns the list of stored bookmarks."""
         raise NotImplementedError()
 
     def new_bookmark(self, id_le, text):
+        """Creates a new bookmark for the given entry with the given text."""
         raise NotImplementedError()
 
     def del_bookmark(self, id_bm):
+        """Deletes a bookmark given its identifier."""
         raise NotImplementedError()
 
 #class _SafetyNet(object):
@@ -100,6 +144,9 @@ class StorageBackend(object):
 #        return ret
 
 class DefaultStorageBackend(StorageBackend):
+    """Default storage backend, implementing entry data encryption by using
+    AES-256 in CTR mode."""
+
     DB_PATH = os.path.join(os.path.expanduser('~'), '.captlog', 'captlog.db')
     SALT_SIZE = 32
     AES_KEY_SIZE = 32
