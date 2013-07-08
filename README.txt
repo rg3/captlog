@@ -20,12 +20,15 @@ HMAC-SHA256.
 Installation
 ------------
 
-captlog is distributed in source form and requires PyCrupto 2.6 or newer in
+captlog is distributed in source form and requires PyCrypto 2.6 or newer in
 addition to a standard Python2 installation. It should work in every platform
 supported by Python and PyCrypto. This includes Linux, Mac OSX and Windows.
 
-To install it, type the following from the command line.
+To install it, first install Python2 and PyCrypto (sometimes distributed as
+python-crypto in some Linux distributions). Then, from the source directory of
+captlog, type the following from the command line.
 
 ---------------------------------
 python setup.py install
 ---------------------------------
+
