@@ -139,6 +139,10 @@ class DefaultGUI(object):
     IMAGE_PATH = os.path.join(os.path.dirname(__file__), 'pixmap')
     TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+    def _display_backend_error(self, e):
+        tkMessageBox.showerror(title="%s: Storage Error" % WINDOW_CLASS,
+                               "Error: %s" % (e.message, ))
+
     def _is_valid_list_index(self, i, lst):
         return (i is not None and i >= 0 and i < len(lst))
 
@@ -188,8 +192,14 @@ class DefaultGUI(object):
 
         if self._is_valid_entry_index(index):
             log_entry = self._entries_list[index]
+
             if log_entry.data is None:
-                log_entry = self._backend.get_entry(log_entry.id_le)
+                try:
+                    log_entry = self._backend.get_entry(log_entry.id_le)
+                except (StorageBackend.Error, ), e:
+                    self._display_backend_error(e)
+                    return
+
             ctime = log_entry.ctime.strftime(self.TIME_FORMAT)
             mtime = log_entry.mtime.strftime(self.TIME_FORMAT)
             self.ctime_value_label['text'] = ctime
@@ -234,7 +244,12 @@ class DefaultGUI(object):
         current_entry_id = (None if self._current_entry_index is None else
                             self._entries_list[self._current_entry_index].id_le)
 
-        self._entries_list = self._backend.list_entries()
+        try:
+            self._entries_list = self._backend.list_entries()
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self._entries_list.sort(reverse=True)
         self.entry_listbox.delete(0, 'end')
         for e in self._entries_list:
@@ -247,7 +262,12 @@ class DefaultGUI(object):
         current_bookmark_id = (None if self._current_bookmark_index is None else
             self._bookmarks_list[self._current_bookmark_index].id_bm)
 
-        self._bookmarks_list = self._backend.list_bookmarks()
+        try:
+            self._bookmarks_list = self._backend.list_bookmarks()
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self._bookmarks_list.sort()
 
         self.bookmark_listbox.delete(0, 'end')
@@ -268,15 +288,26 @@ class DefaultGUI(object):
             return
         entry.data = self.entry_text.get('0.0', 'end')
         entry.mtime = datetime.utcnow()
+
+        try:
+            self._backend.save_entry(entry)
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self.save_button['state'] = 'disabled'
-        self._backend.save_entry(entry)
         self.save_button['state'] = 'enabled'
         mtime_text = entry.mtime.strftime(self.TIME_FORMAT)
         self.mtime_value_label['text'] = mtime_text
         self.entry_text.edit_modified(False)
 
     def _new_entry_button_handler(self, *args):
-        new_entry = self._backend.new_entry()
+        try:
+            new_entry = self._backend.new_entry()
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self._entries_list[:0] = [new_entry]
         if self._current_entry_index is not None:
             self._current_entry_index += 1
@@ -291,8 +322,13 @@ class DefaultGUI(object):
                 "%s: Confirm deletion",
                 "Are you sure you want to delete this entry?"):
             # Mark as not modified to avoid being asked to save entry.
+            try:
+                self._backend.del_entry(entry.id_le)
+            except (StorageBackend.Error, ), e:
+                self._display_backend_error(e)
+                return
+
             self.entry_text.edit_modified(False)
-            self._backend.del_entry(entry.id_le)
             self._update_entry_list()
             self._update_bookmarks_list()
 
@@ -304,7 +340,13 @@ class DefaultGUI(object):
                 "%s: New Bookmark" % WINDOW_CLASS, "Bookmark name:")
         if text is None:
             return
-        bookmark = self._backend.new_bookmark(entry.id_le, text)
+
+        try:
+            bookmark = self._backend.new_bookmark(entry.id_le, text)
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self._update_bookmarks_list()
         pos = self._bookmark_index_by_id(bookmark.id_bm)
         self._do_select_bookmark(pos)
@@ -313,7 +355,13 @@ class DefaultGUI(object):
         if not self._is_valid_bookmark_index(self._current_bookmark_index):
             return
         bookmark = self._bookmarks_list[self._current_bookmark_index]
-        self._backend.del_bookmark(bookmark.id_bm)
+
+        try:
+            self._backend.del_bookmark(bookmark.id_bm)
+        except (StorageBackend.Error, ), e:
+            self._display_backend_error(e)
+            return
+
         self._do_select_bookmark(None)
         self._update_bookmarks_list()
 
