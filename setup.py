@@ -15,9 +15,12 @@
 # this software. If not, see
 # <http://creativecommons.org/publicdomain/zero/1.0/>.
 from distutils.core import setup
+
+VERSION = '0.1'
+
 setup(
     name='captlog',
-    version='0.1',
+    version=VERSION,
     description="The Captain's Log (secret diary and notes application)",
     author='Ricardo Garcia',
     author_email='public@rg3.name',
@@ -26,6 +29,6 @@ setup(
     package_dir={'CaptainsLog': 'src/lib'},
     package_data={'CaptainsLog': ['pixmap/*']},
     scripts=['src/bin/captlog'],
-    provides=['CaptainsLog (0.1)'],
+    provides=['CaptainsLog (%s)' % (VERSION, )],
     requires=['Crypto (>=2.6)'],
     )
