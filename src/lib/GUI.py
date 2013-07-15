@@ -141,7 +141,7 @@ class DefaultGUI(object):
 
     def _display_backend_error(self, e):
         tkMessageBox.showerror(title="%s: Storage Error" % WINDOW_CLASS,
-                               "Error: %s" % (e.message, ))
+                               message=("Error: %s" % (e.message, )))
 
     def _is_valid_list_index(self, i, lst):
         return (i is not None and i >= 0 and i < len(lst))
