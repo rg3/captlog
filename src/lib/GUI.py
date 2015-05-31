@@ -5,7 +5,7 @@
 #
 # captlog - The Captain's Log (secret diary and notes application)
 #
-# Written in 2013 by Ricardo Garcia <public@rg3.name>
+# Written in 2013 by Ricardo Garcia <r@rg3.name>
 #
 # To the extent possible under law, the author(s) have dedicated all copyright
 # and related and neighboring rights to this software to the public domain
